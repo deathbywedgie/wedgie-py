@@ -39,7 +39,7 @@ class ResourceCache:
         self._cache_dir = cache_dir or self.DEFAULT_CACHE_DIR
         if not os.path.exists(self._cache_dir):
             raise FileNotFoundError(f"Cache directory does not exist: {self._cache_dir}")
-        self._cache_dir = os.path.join(self._cache_dir, 'chad_custom_integration_cache')
+        self._cache_dir = os.path.join(self._cache_dir, 'wedgie_custom_cache')
 
         # Ensure the directory exists by creating it if it doesn't
         __cache_path = Path(self._cache_dir)
