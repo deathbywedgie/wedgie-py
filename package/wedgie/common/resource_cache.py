@@ -219,7 +219,8 @@ class ResourceCache:
     def clear(self, table=None):
         if table:
             self.__log.warn(f"Dropping table from cache ({len(self.db.table(table).all())} rows)", table=table)
-            self.db.drop_table(table)
+            with self.lock:  # Ensure that TinyDB access is thread-safe
+                self.db.drop_table(table)
             return
 
         tables = self.db.tables()
@@ -238,7 +239,8 @@ class ResourceCache:
         def _cache_eviction(table_name=None):
             if table_name:
                 __table_obj = self.db.table(table_name)
-                deleted_entries = __table_obj.remove(Query().timestamp < time.time() - self.write_expiry)
+                with self.lock:  # Ensure that TinyDB access is thread-safe
+                    deleted_entries = __table_obj.remove(Query().timestamp < time.time() - self.write_expiry)
                 purged_ids.extend(deleted_entries)
                 if deleted_entries:
                     self.__log.info(f"Eviction complete for table. Removed {len(deleted_entries)} expired entries.", table=table_name)
