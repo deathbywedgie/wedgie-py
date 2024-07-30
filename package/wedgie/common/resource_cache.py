@@ -113,7 +113,7 @@ class ResourceCache:
                 self._parent_classes.append(a)
 
     def _generate_key(self, func, args, kwargs):
-        copied_args = deepcopy(args)
+        copied_args = [a for a in args]
         # Workaround: if the cache decorator is used within a class, then it will pass an unexpected arg for "self."
         # By providing the class objects, we can recognize and remove those.
         while copied_args and isinstance(copied_args[0], tuple(self._parent_classes)):
