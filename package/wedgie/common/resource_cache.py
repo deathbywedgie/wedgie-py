@@ -126,6 +126,7 @@ class ResourceCache:
             'args': copied_args,
             'kwargs': dict(sorted(kwargs.items()))
         }
+        self.__log_verbose(f"Generating key for cache lookup", **key_data)
         return json.dumps(key_data)
 
     @staticmethod
