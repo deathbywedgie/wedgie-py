@@ -32,6 +32,7 @@ class ResourceCache:
     write_expiry = None
 
     def __init__(self, cache_file_name, cache_dir=None, table_name=None, read_expiry: int = None, write_expiry: int = None, store_nones=True, verbose: bool = None):
+        self.new_entries = 0
         self._parent_classes = []
         self._default_table_name = table_name or self.DEFAULT_TABLE_NAME
 
@@ -91,6 +92,7 @@ class ResourceCache:
         return getattr(self.db, "_opened")
 
     def close(self):
+        log.info(f"Close requested. Saving new entries: {self.new_entries}")
         if self.is_open():
             self.cache_eviction()
             self.db.close()
@@ -111,7 +113,7 @@ class ResourceCache:
                 self._parent_classes.append(a)
 
     def _generate_key(self, func, args, kwargs):
-        copied_args = args.copy()
+        copied_args = deepcopy(args)
         # Workaround: if the cache decorator is used within a class, then it will pass an unexpected arg for "self."
         # By providing the class objects, we can recognize and remove those.
         while copied_args and isinstance(copied_args[0], tuple(self._parent_classes)):
@@ -207,6 +209,7 @@ class ResourceCache:
             func_name = func.__name__
         # Store func_name as its own field as well, even though it won't be used this way.
         #  This is so that I can easily find & purge all entries from a specific function if I want.
+        self.new_entries += 1
         with self.lock:  # Ensure that TinyDB access is thread-safe
             self.default_table.upsert({'func_name': func_name, 'key': key, 'value': deepcopy(value), 'timestamp': timestamp}, Query().key == key)
 
