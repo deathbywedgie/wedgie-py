@@ -91,7 +91,7 @@ class ResourceCache:
         return getattr(self.db, "_opened")
 
     def close(self):
-        if self.is_open:
+        if self.is_open():
             self.cache_eviction()
             self.db.close()
             self.__log.info("Cache saved successfully", file_path=self._cache_path)
