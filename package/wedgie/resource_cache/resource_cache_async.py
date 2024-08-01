@@ -8,7 +8,6 @@ from tinydb.middlewares import CachingMiddleware
 import os
 from functools import wraps
 import threading
-import atexit
 from copy import deepcopy
 from pathlib import Path
 
@@ -35,6 +34,23 @@ class ResourceCacheAsync:
     _store_nones = None
     read_expiry = None
     write_expiry = None
+
+    # saving as a placeholder
+    # def __enter__(self):
+    #     log.debug(f"{ResourceCacheAsync.__name__} starting")
+    #     return self
+
+    # Not sure if this would actually help, but saving as a placeholder/example
+    # def __del__(self):
+    #     # Ensure self.cache gets cleaned up
+    #     del self.cache
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        # Trigger immediate closure so data is written right away
+        log.debug(f"{ResourceCacheAsync.__name__} shutting down")
+        self.close()
+        # Trigger the closing of TinyDB instance right away
+        self.db.__exit__(exc_type, exc_value, traceback)
 
     def __init__(self, cache_file_name, cache_dir=None, table_name=None, read_expiry: int = None, write_expiry: int = None, store_nones=True, verbose: bool = None):
         self.new_entries = 0
@@ -85,7 +101,6 @@ class ResourceCacheAsync:
         # I am probably overusing this, as it may not be needed for any read/get/search operations, but the couple
         # extra seconds it takes isn't hurting so far
         self.lock = threading.Lock()  # Threading lock for concurrency control
-        _ = atexit.register(self.close)
         self.cache_eviction()
 
     def _make_logger(self, **kwargs):
@@ -97,8 +112,9 @@ class ResourceCacheAsync:
         return getattr(self.db, "_opened")
 
     def close(self):
-        log.info(f"Close requested. Saving new entries: {self.new_entries}")
+        log.debug(f"Close requested. Checking whether cache is still open.")
         if self.is_open():
+            log.info(f"Closing cache. Saving new entries: {self.new_entries}")
             self.cache_eviction()
             self.db.close()
             self.__log.info("Cache saved successfully", file_path=self._cache_path)
