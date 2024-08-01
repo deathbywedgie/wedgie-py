@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.0.5.1'
+VERSION = '0.0.5.2'
 
 setup(
     name="wedgie",
@@ -27,7 +27,7 @@ setup(
         "Development Status :: 1 - Planning",
         "Intended Audience :: System Administrators",
         "Intended Audience :: Information Technology",
-        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.7",
         "Natural Language :: English",
     ]
 )
