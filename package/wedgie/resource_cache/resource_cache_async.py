@@ -15,7 +15,7 @@ from pathlib import Path
 try:
     from asyncio import to_thread
 except ImportError:
-    from .._asyncio import to_thread
+    from ..asyncio_workaround import to_thread
 
 from logging import getLogger
 import structlog
