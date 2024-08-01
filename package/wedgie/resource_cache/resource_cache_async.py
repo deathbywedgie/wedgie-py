@@ -11,7 +11,11 @@ import threading
 import atexit
 from copy import deepcopy
 from pathlib import Path
-import asyncio
+
+try:
+    from asyncio import to_thread
+except ImportError:
+    from .._asyncio import to_thread
 
 from logging import getLogger
 import structlog
@@ -130,7 +134,7 @@ class ResourceCacheAsync:
             'kwargs': dict(sorted(kwargs.items()))
         }
         self.__log_verbose(f"Generating key for cache lookup", **key_data)
-        return await asyncio.to_thread(json.dumps, key_data)
+        return await to_thread(json.dumps, key_data)
 
     @staticmethod
     async def _get_age_from_result(cache_obj):
@@ -172,7 +176,7 @@ class ResourceCacheAsync:
                 return
 
         self.__log_verbose("Valid cache found", key=key, age=age)
-        return await asyncio.to_thread(deepcopy, result)
+        return await to_thread(deepcopy, result)
 
     async def get_all_cache_for_function(self, func):
         """Retrieve all cache values for a given function."""
