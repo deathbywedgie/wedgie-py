@@ -45,6 +45,13 @@ class ResourceCacheAsync:
     #     # Ensure self.cache gets cleaned up
     #     del self.cache
 
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        # Trigger immediate closure so data is written right away
+        log.debug(f"{ResourceCacheAsync.__name__} shutting down")
+        self.close()
+        # Trigger the closing of TinyDB instance right away
+        self.db.__exit__(exc_type, exc_value, traceback)
+
     def __exit__(self, exc_type, exc_value, traceback):
         # Trigger immediate closure so data is written right away
         log.debug(f"{ResourceCacheAsync.__name__} shutting down")
