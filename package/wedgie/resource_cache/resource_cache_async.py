@@ -8,6 +8,7 @@ from tinydb.middlewares import CachingMiddleware
 import os
 from functools import wraps
 import threading
+import atexit
 from copy import deepcopy
 from pathlib import Path
 
@@ -108,6 +109,7 @@ class ResourceCacheAsync:
         # I am probably overusing this, as it may not be needed for any read/get/search operations, but the couple
         # extra seconds it takes isn't hurting so far
         self.lock = threading.Lock()  # Threading lock for concurrency control
+        _ = atexit.register(self.close)
         self.cache_eviction()
 
     def _make_logger(self, **kwargs):
