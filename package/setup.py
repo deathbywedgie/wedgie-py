@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.0.5.7'
+VERSION = '0.0.5.8'
 
 setup(
     name="wedgie",

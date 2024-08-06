@@ -60,7 +60,7 @@ class ResourceCacheAsync:
         # Trigger the closing of TinyDB instance right away
         self.db.__exit__(exc_type, exc_value, traceback)
 
-    def __init__(self, cache_file_name, cache_dir=None, table_name=None, read_expiry: int = None, write_expiry: int = None, store_nones=True, verbose: bool = None):
+    def __init__(self, cache_file_name, cache_dir=None, table_name=None, read_expiry: int = None, write_expiry: int = None, writes_per_save: int = 100, store_nones=True, verbose: bool = None):
         self.new_entries = 0
         self._parent_classes = []
         self._default_table_name = table_name or self.DEFAULT_TABLE_NAME
@@ -101,7 +101,7 @@ class ResourceCacheAsync:
                          store_nones=store_nones,
                          verbose=self.VERBOSE)
 
-        # CachingMiddleware.WRITE_CACHE_SIZE = 10_000
+        CachingMiddleware.WRITE_CACHE_SIZE = writes_per_save if writes_per_save else 100
         self.db = TinyDB(self._cache_path, storage=CachingMiddleware(JSONStorage), indent=2)
         self.__log.info(f"Successfully initialized cache", file_path=self._cache_path)
         # ToDo eventually come back to this and expand to be able to use custom tables for stuff
