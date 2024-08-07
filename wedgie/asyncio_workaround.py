@@ -3,13 +3,7 @@
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
-executor = ThreadPoolExecutor(max_workers=4)
-
-
-# Workaround for Python 3.7 because asyncio.run was added in 3.9
-async def to_thread(func, *args, **kwargs):
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(executor, func, *args, **kwargs)
+executor = ThreadPoolExecutor()
 
 
 # Workaround for Python 3.7 because asyncio.run was added in 3.8
@@ -28,3 +22,9 @@ def run(coro):
     finally:
         if not loop.is_running():
             loop.close()
+
+
+# Workaround for Python 3.7 because asyncio.run was added in 3.9
+async def to_thread(func, *args, **kwargs):
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(executor, func, *args, **kwargs)
