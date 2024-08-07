@@ -1,33 +1,27 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.0.5.9'
-
 setup(
     name="wedgie",
-    version=VERSION,
+    version="0.0.5.10",
     author="Chad Roberts",
     author_email="jcbroberts@gmail.com",
     description="A public Python package for miscellaneous reusable functionality",
-    long_description="A public Python package for miscellaneous reusable functionality",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
+    url="https://github.com/deathbywedgie/wedgie-py",
     packages=find_packages(),
+    classifiers=[
+        "Intended Audience :: System Administrators",
+        "Intended Audience :: Information Technology",
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Natural Language :: English",
+    ],
+    python_requires='>=3.7',
     install_requires=[
         "structlog",
         "tinydb >= 4.8.0",
         "tabulate >= 0.9.0",
     ],
-    keywords=["python"],
-
-    # url="https://github.com/...",
-    # project_urls={
-    #     "Bug Tracker": "https://github.com/...",
-    # },
-
-    # https://pypi.org/classifiers/
-    classifiers=[
-        "Development Status :: 1 - Planning",
-        "Intended Audience :: System Administrators",
-        "Intended Audience :: Information Technology",
-        "Programming Language :: Python :: 3.7",
-        "Natural Language :: English",
-    ]
 )
