@@ -104,7 +104,13 @@ class ResourceCacheAsync:
                          verbose=self.VERBOSE)
 
         CachingMiddleware.WRITE_CACHE_SIZE = writes_per_save if writes_per_save else 100
-        self.db = TinyDB(self._cache_path, storage=CachingMiddleware(JSONStorage), indent=json_indent)
+        try:
+            self.db = TinyDB(self._cache_path, storage=CachingMiddleware(JSONStorage), indent=json_indent)
+        except json.JSONDecodeError:
+            self.__log.error("Cache file is corrupted. Deleting and reinitializing cache")
+            os.remove(self._cache_path)
+            self.db = TinyDB(self._cache_path, storage=CachingMiddleware(JSONStorage), indent=json_indent)
+
         self.__log.info(f"Successfully initialized cache", file_path=self._cache_path)
         # ToDo eventually come back to this and expand to be able to use custom tables for stuff
         self.default_table = self.db.table(self._default_table_name)
