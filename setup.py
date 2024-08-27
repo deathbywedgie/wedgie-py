@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="wedgie",
-    version="0.0.5.12",
+    version="0.0.5.13",
     author="Chad Roberts",
     author_email="jcbroberts@gmail.com",
     description="A public Python package for miscellaneous reusable functionality",

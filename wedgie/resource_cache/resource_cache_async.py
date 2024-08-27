@@ -68,6 +68,7 @@ class ResourceCacheAsync:
         self._default_table_name = table_name or self.DEFAULT_TABLE_NAME
 
         self._file_name = cache_file_name
+        self.json_indent = json_indent
         self._cache_dir = cache_dir or self.DEFAULT_CACHE_DIR
         if not os.path.exists(self._cache_dir):
             raise FileNotFoundError(f"Cache directory does not exist: {self._cache_dir}")
@@ -103,21 +104,25 @@ class ResourceCacheAsync:
                          store_nones=store_nones,
                          verbose=self.VERBOSE)
 
-        CachingMiddleware.WRITE_CACHE_SIZE = writes_per_save if writes_per_save else 100
-        try:
-            self.db = TinyDB(self._cache_path, storage=CachingMiddleware(JSONStorage), indent=json_indent)
-        except json.JSONDecodeError:
-            self.__log.error("Cache file is corrupted. Deleting and reinitializing cache")
-            os.remove(self._cache_path)
-            self.db = TinyDB(self._cache_path, storage=CachingMiddleware(JSONStorage), indent=json_indent)
-
-        self.__log.info(f"Successfully initialized cache", file_path=self._cache_path)
-        # ToDo eventually come back to this and expand to be able to use custom tables for stuff
-        self.default_table = self.db.table(self._default_table_name)
         # I am probably overusing this, as it may not be needed for any read/get/search operations, but the couple
         # extra seconds it takes isn't hurting so far
         self.lock = threading.Lock()  # Threading lock for concurrency control
+
+        CachingMiddleware.WRITE_CACHE_SIZE = writes_per_save if writes_per_save else 100
+        try:
+            self._init_cache()
+        except json.JSONDecodeError:
+            self.__log.error("Cache file is corrupted. Deleting and reinitializing cache")
+            os.remove(self._cache_path)
+            self._init_cache()
+
+        self.__log.info(f"Successfully initialized cache", file_path=self._cache_path)
         _ = atexit.register(self.close)
+
+    def _init_cache(self):
+        self.db = TinyDB(self._cache_path, storage=CachingMiddleware(JSONStorage), indent=self.json_indent)
+        # ToDo eventually come back to this and expand to be able to use custom tables for stuff
+        self.default_table = self.db.table(self._default_table_name)
         self.cache_eviction()
 
     def _make_logger(self, **kwargs):
